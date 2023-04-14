@@ -28,9 +28,6 @@ const fetchMyIP = function(callback) {
 
 };
 
-
-
-
 const fetchCoordsByIP = function(ip, callback) {
   request(`http://ipwho.is/${ip}`, (error, response, body)=> {
    
@@ -52,16 +49,34 @@ const fetchCoordsByIP = function(ip, callback) {
       callback(Error(message), null);
     } 
     const {latitude, longitude} = georef  
-    console.log(georef)
+    //console.log(georef)
     callback(null, {latitude, longitude});
-    
-
-  ;
-
-});
-
-
-
+  });
 };
 
-module.exports = { fetchMyIP, fetchCoordsByIP };
+
+const fetchISSFlyOverTimes = function(coords, callback) {
+  const url = `https://iss-flyover.herokuapp.com/json/?lat=${coords.latitude}&lon=${coords.longitude}`;
+  request(url, (error, response, body)=> {
+   
+    if (error) {
+      callback(error, null);
+      return;
+    } 
+    if (response.statusCode !== 200) {
+      const message = `Failed Status of ISS code: ${response.statusCode}`;
+      //console.error(`Error: ${message}`);
+      callback(Error(message), null);  
+      return;    
+    }
+    const georef = JSON.parse(body).response;
+    //const ip = data.ip
+
+    
+    const {latitude, longitude} = georef  
+    //console.log(georef)
+    callback(null, georef);
+  });
+};
+
+module.exports = { fetchMyIP, fetchCoordsByIP, fetchISSFlyOverTimes };
